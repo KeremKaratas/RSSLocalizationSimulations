@@ -27,42 +27,10 @@ alpha_assumed = 3.5;
 recSens = -Inf;
 
 %% Output Flags
-% Number of zoomed plots
-plotON = 0;
 % Display placements/estimation
 dispON = 1;
-% Display the cost table
-tableON = 1;
-% Calculate cost function with known emitter power values
-useKE = 1;
-% Assign Sensor Locations
-assignS = 0;
-% Assign Emitter Locations
-assignE = 0;
-% Center Sensors in the middle of grids while placement
-centerSensors = 0;
-% Center Emitters in the middle of grids while placement
-centerEmitters = 0;
 % Time the Script
 useTime = 0;
-
-% Display simulation paramaters if flag set
-if(dispON)
-    disp('Full Grid Simulation Single Emitter');
-    if(useKE)
-        disp('Uses Known Emittor Transmit Power Objective Function')
-    else
-        disp('Uses Unknown Emittor Transmit Power Objective Function')
-    end
-    disp(['Region of Interest is: ' ...
-            , num2str(ROI), 'x',  num2str(ROI)]);
-    disp(['Region is divided into grids of size: '...
-            , num2str(gridSize), 'x',  num2str(gridSize)]); 
-    disp(['Number of sensors: ', num2str(N_s)]);        
-    disp(['Path Loss Exponent (Actual): ', num2str(alpha_actual)]);
-    disp(['Path Loss Exponent (Assumed): ', num2str(alpha_assumed)]);   
-    disp(['Shadow Spread (dB): ', num2str(sigma)]);
-end
 
 % TEST Purposes
 % Corner Placement
@@ -104,14 +72,35 @@ end
 % sPos(:,4) = [54.9829;61.2566];
 % sPos(:,5) = [58.344;82.902];
 % ePos(:,1) = [72.5908;9.6768];
+% Random placement
+sPos(:,1) = [82.5314;8.347];
+sPos(:,2) = [13.3171;17.3389];
+sPos(:,3) = [39.0938;83.138];
+sPos(:,4) = [39.9258;52.6876];
+ePos(:,1) = [41.6799;65.686];
 
 % Assign Sensor Locations
-sPos = 0;
+%sPos = 0;
 assignS = sPos;
 
 % Assign Emitter Locations
-ePos = 0;
+%ePos = 0;
 assignE = ePos;                  % Assign Sensors, 0 otherwise
+
+%% Display Simulation Parameters
+% Display simulation paramaters if flag set
+if(dispON)
+    disp(['Region of Interest is: ' ...
+            , num2str(ROI), 'x',  num2str(ROI)]);
+    disp(['Region is divided into grids of size: '...
+            , num2str(gridSize), 'x',  num2str(gridSize)]); 
+    disp(['Number of sensors: ', num2str(N_s)]);        
+    disp(['Path Loss Exponent (Actual): ', num2str(alpha_actual)]);
+    disp(['Path Loss Exponent (Assumed): ', num2str(alpha_assumed)]);
+    disp(['Transmit Power (Actual): ', num2str(P_T)]);
+    disp(['Transmit Power (Assumed): ', num2str(P_E)]);
+    disp(['Shadow Spread (dB): ', num2str(sigma)]);
+end
 
 %% Main Function Call
 % FGS_SE( ROI, gridSize, N_s, P_T, P_E, sigma, alpha_actual, alpha_assumed...
@@ -121,14 +110,14 @@ assignE = ePos;                  % Assign Sensors, 0 otherwise
 %     , assignS, assignE, centerSensors, centerEmitters);    
 Trilateration( ROI, gridSize, N_s, P_T, P_E, sigma, alpha_actual ...
     , alpha_assumed, recSens ...
-    , plotON, dispON ...
+    , dispON ...
     , useTime, assignS, assignE)  
-% MinMax( ROI, gridSize, N_s, P_T, P_E, sigma, alpha_actual ...
-%     , alpha_assumed, recSens ...
-%     , plotON, dispON ...
-%     , useTime, assignS, assignE)
-% MaximumLikelihood( ROI, gridSize, N_s, P_T, P_E, sigma, alpha_actual ...
-%     , alpha_assumed, recSens ...
-%     , plotON, dispON ...
-%     , useTime, assignS, assignE)
+MinMax( ROI, gridSize, N_s, P_T, P_E, sigma, alpha_actual ...
+    , alpha_assumed, recSens ...
+    , dispON ...
+    , useTime, assignS, assignE)
+MaximumLikelihood( ROI, gridSize, N_s, P_T, P_E, sigma, alpha_actual ...
+    , alpha_assumed, recSens ...
+    , dispON ...
+    , useTime, assignS, assignE)
 end

@@ -1,7 +1,7 @@
 function [estErr, sPos, ePos] = ...
 MinMax( ROI, gridSize, N_s, P_T, P_E, sigma, alpha_actual ...
     , alpha_assumed, recSens ...
-    , plotON, dispON ...
+    , dispON ...
     , useTime, assignS, assignE)
 %% MINMAX
 % This function implements Minmax method to localize the emitter. If
@@ -19,7 +19,6 @@ MinMax( ROI, gridSize, N_s, P_T, P_E, sigma, alpha_actual ...
 % alpha_actual - Actual value of the Path Loss Exponent
 % alpha_assumed - Assumed value of the Path Loss Exponent
 % recSens - Receiver Sensitivity
-% plotON - Number of vertically zoomed in objective function plots
 % dispON - Flag for displaying simulation information (Set 1 to display)
 % useTime - Flag for timing parts of simulation (Set 1 to time)
 % assignS - Predefined locations for sensors (0 to randomly assign)
@@ -144,7 +143,10 @@ if useTime
 end
 
 %% Emitter Location Estimation
-% Distances are estimated from each sensor. A square is formed using 
+% Distances are estimated from each sensor. A square is formed using sensor
+% location as the center and sides twice the length of the estimated
+% distance. Estimation of the emitter is done as the center of the
+% quadrilateral formed by the intersections of the squares.
 
 % Estimate the distance from sensors to the emitter using FSPL
 estDist = (r./P_E).^(-1/alpha_assumed);
@@ -180,82 +182,6 @@ estELoc = [ex;ey];
 estErr = sqrt((ePos(1,:)-ex).^2 + (ePos(2,:)-ey).^2);
 if dispON>0
     disp(['Estimation error is ', num2str(estErr)  , ' meters.']);
-end
-
-% Plot the resulting cost function
-if(plotON~=0)    
-    % We will use this figure to plot the cost function 3D
-    figure('name','Emitter Location Estimation','numbertitle','off');
-
-    % Find how many subplots are neccessary
-    plotSize = 0;
-    while(abs(plotON)>plotSize^2)
-        plotSize=plotSize+1;
-    end
-
-    h=zeros(1,plotSize);
-    for i=1:abs(plotON)        
-        if (exist('subtightplot', 'file'))
-            subtightplot(plotSize,plotSize,i...
-                            ,[0.1 0.1], [0.1 0.1], [0.1 0.1]);
-        else
-            subplot(plotSize,plotSize,i)
-        end
-        % Change large values to NaN for better visual
-        visual = theta;           
-        if(plotON>0)
-            for j=1:i-1
-                visual(visual>=(max(visual(:))-min(visual(:)))/2) = NaN;
-            end
-        end
-        if(plotON<0)
-            visual(visual>=nanmean(visual(:))) = NaN;
-            for j=1:i
-                visual(visual>=nanmean(visual(:))) = NaN;
-            end
-        end       
-        colormap([jet(128);gray(128)])
-        h(i) = surf(xGrid,yGrid,visual);
-
-        % Initially, both CDatas are equal to cost.
-        color_S = 128; % 128-elements is each colormap
-
-        % CData for surface
-        cmin = min(visual(:));
-        cmax = max(visual(:));
-        C1 = min(color_S,round((color_S-1)*(visual-cmin)/(cmax-cmin))+1); 
-
-        % CData for pcolor
-        C2 = 128+C1;
-
-        % Update the CDatas for each object.
-        set(h(i),'CData',C1);
-
-        % Change the CLim property of axes so that it spans the 
-        % CDatas of both objects.
-        caxis([min(C1(:)) max(C2(:))])
-
-        set(h(i),'EdgeColor','none');       % This setting will make sure 
-                                            % that the plot is not black 
-                                            % because of default wire mesh
-
-        % Set labels and title
-        title(['Vertical Zoom Level ', num2str(i)]);
-        xlabel('x');
-        ylabel('y');
-        zlabel('Cost/Objective Function');
-
-
-        % Mark minimum on the map       
-        try
-            makedatatip(h(i),[Iy Ix]);
-        catch            
-            disp('Minimum value not shown as makedatatip.m is not found.');
-        end
-    end
-
-    % Enlarge figure
-    set(gcf, 'units','normalized','outerposition',[0.05 0.13 0.9 0.8]);  
 end
 
 if(dispON)
