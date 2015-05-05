@@ -1,6 +1,6 @@
 function [] = SingleTest()
 %% Example Test Function
-% Initialize and run FGS_SE
+% Initialize parameters for the simulation and run localization algorithm
 
 clear variables;
 clc;
@@ -12,7 +12,7 @@ ROI = 100;
 % Grid Element Size
 gridSize = 5;
 % Number of Sensors
-N_s = 4;
+N_s = 3;
 % Transmit Power of the Emitter (Watts)
 P_T = 1;
 % Assumed Transmit Power (Watts)
@@ -73,11 +73,16 @@ useTime = 0;
 % sPos(:,5) = [58.344;82.902];
 % ePos(:,1) = [72.5908;9.6768];
 % Random placement
-sPos(:,1) = [82.5314;8.347];
-sPos(:,2) = [13.3171;17.3389];
-sPos(:,3) = [39.0938;83.138];
-sPos(:,4) = [39.9258;52.6876];
-ePos(:,1) = [41.6799;65.686];
+% sPos(:,1) = [82.5314;8.347];
+% sPos(:,2) = [13.3171;17.3389];
+% sPos(:,3) = [39.0938;83.138];
+% sPos(:,4) = [39.9258;52.6876];
+% ePos(:,1) = [41.6799;65.686];
+% Goldoni T1 placement
+sPos(:,1) = [17;2];
+sPos(:,2) = [9.5;10];
+sPos(:,3) = [2;2];
+ePos(:,1) = [17;9.5];
 
 % Assign Sensor Locations
 %sPos = 0;
@@ -111,13 +116,13 @@ end
 Trilateration( ROI, gridSize, N_s, P_T, P_E, sigma, alpha_actual ...
     , alpha_assumed, recSens ...
     , dispON ...
-    , useTime, assignS, assignE)  
+    , useTime, assignS, assignE);  
 MinMax( ROI, gridSize, N_s, P_T, P_E, sigma, alpha_actual ...
     , alpha_assumed, recSens ...
     , dispON ...
-    , useTime, assignS, assignE)
+    , useTime, assignS, assignE);
 MaximumLikelihood( ROI, gridSize, N_s, P_T, P_E, sigma, alpha_actual ...
     , alpha_assumed, recSens ...
     , dispON ...
-    , useTime, assignS, assignE)
+    , useTime, assignS, assignE);
 end
